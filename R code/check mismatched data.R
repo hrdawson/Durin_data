@@ -19,3 +19,21 @@ spp.durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra So
   filter(spp.code != spp.abbrv) |>
   # Make it human readable
   relocate(c(spp.code, spp.abbrv), .after = envelope_ID)
+
+# Checking that DURIN habitats have been correctly assigned
+habitat.durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sogndal Tjøtta Senja Kautokeino_Data only.csv",
+                     na.strings=c("","NA")) |>
+  #Filter to just DURIN
+  drop_na(DURIN_plot) |>
+  # Separate out the plot ID for identifying species
+  separate(DURIN_plot, into = c("site.abbrv", "habitat.abbrv", "spp.abbrv", "rep.abbrv")) |>
+  # Create abbreviated species codes
+  mutate(habitat.assigned = case_when(
+    habitat == "Open" ~ "O",
+    species == "Forested" ~ "F",
+    TRUE ~ "unknown"
+  )) |>
+  # Filter to problem leaves
+  filter(habitat.assigned != habitat.abbrv) |>
+  # Make it human readable
+  relocate(c(habitat.assigned, habitat.abbrv), .after = envelope_ID)
