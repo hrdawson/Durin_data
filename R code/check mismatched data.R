@@ -1,5 +1,6 @@
 library(tidyverse)
 
+# DURIN ----
 # Checking that DURIN species are in the correct plots
 spp.durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sogndal Tjøtta Senja Kautokeino_Data only.csv",
                      na.strings=c("","NA")) |>
@@ -20,7 +21,9 @@ spp.durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra So
   # Make it human readable
   relocate(c(spp.code, spp.abbrv), .after = envelope_ID)
 
-# Checking that DURIN habitats have been correctly assigned
+write.csv(spp.durin, "output/2023.07.24_checks_spp.durin.csv")
+
+# Check that DURIN habitats have been correctly assigned
 habitat.durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sogndal Tjøtta Senja Kautokeino_Data only.csv",
                      na.strings=c("","NA")) |>
   #Filter to just DURIN
@@ -37,3 +40,7 @@ habitat.durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygr
   filter(habitat.assigned != habitat.abbrv) |>
   # Make it human readable
   relocate(c(habitat.assigned, habitat.abbrv), .after = envelope_ID)
+
+write.csv(habitat.durin, "output/2023.07.24_checks_habitat.durin.csv")
+
+# DroughtNet ----
