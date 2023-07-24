@@ -44,3 +44,22 @@ habitat.durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygr
 write.csv(habitat.durin, "output/2023.07.24_checks_habitat.durin.csv")
 
 # DroughtNet ----
+DN.metadata = read.csv("output/DroughtNet plot metadata.csv") |>
+  select(-c(X)) |>
+  rename(DroughtTrt.correct = DroughtTrt)
+
+age.DN = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sogndal Tjøtta Senja Kautokeino_Data only.csv",
+                     na.strings=c("","NA")) |>
+  #Filter to just DroughtNet
+  drop_na(DroughNet_plotID) |>
+  # Manually create verified age class
+  # NOTE this is incorrect for a handful of recollected plants:
+  # PIO 3.2 CV, PIO 3.1 CV (x2)
+  mutate(ageClass.correct = case_when(
+    day == 5 ~ "Pioneer",
+    day == 3 ~ "Mature"
+  )) |>
+  # Add verified metadata
+  left_join(DN.metadata) |>
+  filter(ageClass != ageClass.correct) |>
+  relocate(c(day, month, ageClass, ageClass.correct, DroughtTrt, DroughtTrt.correct), .after = envelope_ID)
