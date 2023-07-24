@@ -15,3 +15,5 @@ droughtnet.plots = read.csv("raw_data/DroughtNet plot metadata_Lygra.csv") |>
     TRUE ~ "Unknown"
   )) |>
   bind_rows(read.csv("raw_data/DroughtNet plot metadata_Tjøtta.csv"))
+
+write.csv(droughtnet.plots, "output/DroughtNet plot metadata.csv")
