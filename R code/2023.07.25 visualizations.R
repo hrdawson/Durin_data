@@ -16,10 +16,21 @@ durin.viz = durin.noerrors |>
 # visualize data ----
 library(ggh4x)
 
-ggplot(durin.viz %>% filter(leaf_age != "" & habitat != ""),
+# Traits not height
+ggplot(durin.viz %>% filter(leaf_age != "" & habitat != "") |> filter(trait != "plant_height"),
        aes(interaction(habitat, siteID), y = value, fill = leaf_age)) +
   geom_boxplot() +
   scale_fill_manual(values = c("grey40", "grey80")) +
+  facet_wrap(~ trait, scales = "free") +
+  scale_y_log10() +
+  scale_x_discrete(guide = "axis_nested") +
+  labs(x = "") +
+  theme_bw()
+
+# Plant height
+ggplot(durin.viz %>% filter(leaf_age != "" & habitat != "") |> filter(trait == "plant_height"),
+       aes(interaction(habitat, siteID), y = value)) +
+  geom_boxplot() +
   facet_wrap(~ trait, scales = "free") +
   scale_y_log10() +
   scale_x_discrete(guide = "axis_nested") +
@@ -69,9 +80,8 @@ ggplot(DN.viz %>% filter(leaf_age != "" & ageClass != "" & DroughtTrt != "") |> 
 
 ## Height ----
 ggplot(DN.viz %>% filter(leaf_age != "" & ageClass != "" & DroughtTrt != "") |> filter(trait == "plant_height"),
-       aes(interaction(DroughtTrt, ageClass), y = value, fill = leaf_age)) +
+       aes(interaction(DroughtTrt, ageClass), y = value)) +
   geom_boxplot() +
-  scale_fill_manual(values = c("grey40", "grey80")) +
   facet_wrap(~ siteID) +
   scale_y_log10() +
   scale_x_discrete(guide = "axis_nested") +
