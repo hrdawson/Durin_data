@@ -57,4 +57,6 @@ durin.noerrors = durin |>
   filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
                              "CMH5663", "DAI1197", "BHR0925", "AUZ1311", "BOW7206",
                              "DBV0943", "CWZ4784", "EDV5508", "EDR6459", "AEG7270",
-                             "EEN3300"))
+                             "EEN3300")) |>
+  # Correct the spelling of Senja
+  mutate(siteID = replace(siteID, siteID == "Senje", "Senja"))
