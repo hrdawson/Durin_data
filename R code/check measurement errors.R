@@ -54,6 +54,83 @@ error.durin.bulk = durin |>
 
 write.csv(error.durin.bulk, "output/error.durin.bulk.csv")
 
+### Incorrect age for myrtillus and Calluna ----
+error.durin.age_vm.cv = durin |>
+  filter(species %in% c("Vaccinium myrtillus", "Calluna vulgaris") & leaf_age == "old") |>
+  relocate(leaf_age, .after = envelope_ID)
+
+### Incorrect number of plants per plot ----
+# Cross reference with the list of plant numbers
+durin.max.plant_nr = durin |>
+  # Select the columns needed
+  select(DURIN_plot, DroughNet_plotID, species, plant_nr) |>
+  # Remove duplicate data
+  distinct() |>
+  # Sort by plant number and slice the maximum
+  group_by(DURIN_plot, DroughNet_plotID, species) |>
+  slice_max(plant_nr) |>
+  rename(max.plant.n = plant_nr)
+
+error.durin.plants = durin |>
+  # Filter out known issues (wrong species)
+  filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
+                             "CMH5663", "DAI1197")) |>
+  # Select relevant columns
+  select(DURIN_plot, DroughNet_plotID, species, plant_nr) |>
+  distinct() |>
+  # Count plants per plot
+  group_by(DURIN_plot, DroughNet_plotID, species) |>
+  summarize(n = length(plant_nr)) |>
+  # Join in reference data
+  left_join(durin.max.plant_nr) |>
+  # Filter to incorrect counts
+  filter(n > max.plant.n)
+
+### Incorrect number of leaves per age ----
+#### Find missing data ----
+# Missing leaf age
+error.durin.age.missing = durin |>
+  # Filter to species with young and old leaves
+  filter(species %in% c("Vaccinium vitis-idaea", "Empetrum nigrum")) |>
+  # Filter out known issues (wrong species)
+  filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
+                             "CMH5663", "DAI1197")) |>
+  # Filter to NA values
+  filter(is.na(leaf_age))
+
+age.missing.list = as.list(error.durin.age.missing$envelope_ID)
+
+# Missing plant number
+error.durin.plantnr.missing = durin |>
+  # Filter to species with young and old leaves
+  filter(species %in% c("Vaccinium vitis-idaea", "Empetrum nigrum")) |>
+  # Filter out known issues (wrong species)
+  filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
+                             "CMH5663", "DAI1197")) |>
+  # Filter to NA values
+  filter(is.na(plant_nr))
+
+nr.missing.list = as.list(error.durin.plantnr.missing$envelope_ID)
+
+#### Find mismatched ages ----
+# 2023.07.25 I'm setting this aside for further thought.
+# I'm not sure how to correct these errors because none of them match (total = 6)
+# This could be caused by the missing NAs above though.
+error.durin.age = durin |>
+  # Filter to species with young and old leaves
+  filter(species %in% c("Vaccinium vitis-idaea", "Empetrum nigrum")) |>
+  # Filter out known issues (wrong species)
+  filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
+                             "CMH5663", "DAI1197")) |>
+  # Filter out known issues (NA age and plant number)
+  filter(!envelope_ID %in% age.missing.list) |>
+  filter(!envelope_ID %in% nr.missing.list) |>
+  group_by(DURIN_plot, DroughNet_plotID, species, plant_nr, leaf_age) |>
+  summarize(n = length(envelope_ID)) |>
+  ungroup() |>
+  # Filter to the incorrect number of leaves
+  filter(n != 3)
+
 # Make temporary object without erroneous leaves ----
 library(tidylog)
 

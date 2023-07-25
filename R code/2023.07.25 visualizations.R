@@ -102,3 +102,14 @@ ggplot(DN.viz %>% filter(leaf_age != "" & ageClass != "" & DroughtTrt != "") |> 
 
 ggsave("visualizations/2023.07.25_DroughtNet_height.png",
        width = 6, height = 8, units = "in")
+
+# By species ----
+ggplot(durin.viz %>% filter(leaf_age != "" & habitat != ""),
+       aes(interaction(siteID, species), y = value, fill = leaf_age)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("grey40", "grey80")) +
+  facet_wrap(~ trait, scales = "free") +
+  scale_y_log10() +
+  scale_x_discrete(guide = "axis_nested") +
+  # labs(x = "", title = "DURIN leaf thickness and leaf mass") +
+  theme_bw()
