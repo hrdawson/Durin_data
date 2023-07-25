@@ -25,10 +25,26 @@ error.durin.thickness = durin |>
   # Values pulled from durin.means object
   filter(leaf_thickness_1_mm > 0.278*10 |
            leaf_thickness_2_mm > 0.280*10 |
-           leaf_thickness_3_mm > 0.321*10)
+           leaf_thickness_3_mm > 0.321*10 |
+           leaf_thickness_1_mm < 0.278/10 |
+           leaf_thickness_2_mm < 0.280/10 |
+           leaf_thickness_3_mm < 0.321/10) |>
+  relocate(c(leaf_thickness_1_mm, leaf_thickness_2_mm, leaf_thickness_3_mm), .after = envelope_ID)
 
 ### Weight errors ----
 error.durin.weight = durin |>
   # Values pulled from durin.means object
-  filter(wet_mass_g > 0.025 *10) |>
+  filter(wet_mass_g > 0.025 *10 |
+           wet_mass_g < 0.025/10) |>
   relocate(wet_mass_g, .after = envelope_ID)
+
+### Height errors ----
+error.durin.height = durin |>
+  # Values pulled from durin.means object
+  filter(plant_height > 17.258 * 5 |
+           plant_height < 17.258/10) |>
+  relocate(plant_height, .after = envelope_ID)
+
+# Make temporary object without erroneous leaves ----
+durin.noerrors = durin |>
+  filter(!envelope_ID %in%)
