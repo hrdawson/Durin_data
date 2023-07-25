@@ -45,8 +45,19 @@ error.durin.height = durin |>
            plant_height < 17.258/10) |>
   relocate(plant_height, .after = envelope_ID)
 
+### Missing bulk numbers (to be counted on scan) ----
+error.durin.bulk = durin |>
+  # Values pulled from durin.means object
+  filter(is.na(bulk_nr_leaves) &
+           species %in% c("Empetrum nigrum", "Calluna vulgaris")) |>
+  relocate(bulk_nr_leaves, .after = envelope_ID)
+
+write.csv(error.durin.bulk, "output/error.durin.bulk.csv")
+
 # Make temporary object without erroneous leaves ----
 library(tidylog)
+
+list.nobulk = as.list(error.durin.bulk$envelope_ID)
 
 durin.noerrors = durin |>
   # Filter out measurement errors
@@ -58,5 +69,7 @@ durin.noerrors = durin |>
                              "CMH5663", "DAI1197", "BHR0925", "AUZ1311", "BOW7206",
                              "DBV0943", "CWZ4784", "EDV5508", "EDR6459", "AEG7270",
                              "EEN3300")) |>
+  # Filter out missing bulk leaves
+  filter(!envelope_ID %in% list.nobulk) |>
   # Correct the spelling of Senja
   mutate(siteID = replace(siteID, siteID == "Senje", "Senja"))

@@ -24,8 +24,11 @@ ggplot(durin.viz %>% filter(leaf_age != "" & habitat != "") |> filter(trait != "
   facet_wrap(~ trait, scales = "free") +
   scale_y_log10() +
   scale_x_discrete(guide = "axis_nested") +
-  labs(x = "") +
+  labs(x = "", title = "DURIN leaf thickness and leaf mass") +
   theme_bw()
+
+ggsave("visualizations/2023.07.25_DURIN_thickness.mass.png",
+       width = 12, height = 8, units = "in")
 
 # Plant height
 ggplot(durin.viz %>% filter(leaf_age != "" & habitat != "") |> filter(trait == "plant_height"),
@@ -34,8 +37,11 @@ ggplot(durin.viz %>% filter(leaf_age != "" & habitat != "") |> filter(trait == "
   facet_wrap(~ trait, scales = "free") +
   scale_y_log10() +
   scale_x_discrete(guide = "axis_nested") +
-  labs(x = "") +
+  labs(x = "", title = "DURIN plant height") +
   theme_bw()
+
+ggsave("visualizations/2023.07.25_DURIN_height.png",
+       width = 6, height = 8, units = "in")
 
 # DroughtNet----
 DN.viz = durin.noerrors |>
@@ -64,8 +70,11 @@ ggplot(DN.viz %>% filter(leaf_age != "" & ageClass != "" & DroughtTrt != "") |> 
   facet_wrap(~ siteID) +
   scale_y_log10() +
   scale_x_discrete(guide = "axis_nested") +
-  labs(x = "") +
+  labs(x = "", title = "DroughtNet leaf thickness") +
   theme_bw()
+
+ggsave("visualizations/2023.07.25_DroughtNet_thickness.png",
+       width = 10, height = 8, units = "in")
 
 ## Weight ----
 ggplot(DN.viz %>% filter(leaf_age != "" & ageClass != "" & DroughtTrt != "") |> filter(trait == "wet_mass_g"),
@@ -75,8 +84,11 @@ ggplot(DN.viz %>% filter(leaf_age != "" & ageClass != "" & DroughtTrt != "") |> 
   facet_wrap(~ siteID) +
   scale_y_log10() +
   scale_x_discrete(guide = "axis_nested") +
-  labs(x = "") +
+  labs(x = "", title = "DroughtNet leaf mass") +
   theme_bw()
+
+ggsave("visualizations/2023.07.25_DroughtNet_mass.png",
+       width = 10, height = 8, units = "in")
 
 ## Height ----
 ggplot(DN.viz %>% filter(leaf_age != "" & ageClass != "" & DroughtTrt != "") |> filter(trait == "plant_height"),
@@ -85,5 +97,8 @@ ggplot(DN.viz %>% filter(leaf_age != "" & ageClass != "" & DroughtTrt != "") |> 
   facet_wrap(~ siteID) +
   scale_y_log10() +
   scale_x_discrete(guide = "axis_nested") +
-  labs(x = "") +
+  labs(x = "", title = "DroughtNet plant height") +
   theme_bw()
+
+ggsave("visualizations/2023.07.25_DroughtNet_height.png",
+       width = 6, height = 8, units = "in")
