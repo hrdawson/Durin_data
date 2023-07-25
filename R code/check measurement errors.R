@@ -59,6 +59,8 @@ error.durin.age_vm.cv = durin |>
   filter(species %in% c("Vaccinium myrtillus", "Calluna vulgaris") & leaf_age == "old") |>
   relocate(leaf_age, .after = envelope_ID)
 
+error.list.vmcv.age = error.durin.age_vm.cv$envelope_ID
+
 ### Incorrect number of plants per plot ----
 # Cross reference with the list of plant numbers
 durin.max.plant_nr = durin |>
@@ -131,6 +133,39 @@ error.durin.age = durin |>
   # Filter to the incorrect number of leaves
   filter(n != 3)
 
+## Incorrect plant heights ----
+# 2023.07.25 Something is going wrong with this
+# There are two ways to get wrong height: wrong treatment/plant nr OR incorrectly entered height
+# The solution may be to enter all the field sheets and check against those...
+error.durin.height = durin |>
+  # Select relevant columns
+  select(DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height) |>
+  # Remove duplicates
+  distinct() |>
+  # Summarize to find single plants with multiple measurements
+  group_by(DURIN_plot, DroughNet_plotID, species, plant_nr) |>
+  summarise(n = length(plant_height)) |>
+  # Filter to erroneous ones
+  filter(n > 1) |>
+  # Drop variable with count
+  select(-n) |>
+  # Inner join with main dataset
+  inner_join(durin) |>
+  select(envelope_ID, DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height) |>
+  # Make dataset of heights
+  group_by(DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height) |>
+  summarize(n = length(envelope_ID)) |>
+  ungroup() |>
+  # Remove heights that are likely to be correct
+  filter(!n %in% c(3, 6))
+  # Select the least probable height
+  group_by(DURIN_plot, DroughNet_plotID, species, plant_nr) |>
+  slice_min(n) |>
+  # Inner join for list of envelope IDs
+  inner_join(durin)
+
+write.csv(error.durin.height, "output/error.durin.height.csv")
+
 # Make temporary object without erroneous leaves ----
 library(tidylog)
 
@@ -148,6 +183,8 @@ durin.noerrors = durin |>
                              "EEN3300")) |>
   # Filter out missing bulk leaves
   filter(!envelope_ID %in% list.nobulk) |>
+  # Filter out mis-aged VM and CV
+  filter(!envelope_ID %in% error.list.vmcv.age) |>
   # Correct the spelling of Senja
   mutate(siteID = replace(siteID, siteID == "Senje", "Senja")) |>
   # Scale for bulk leaves
@@ -155,4 +192,5 @@ durin.noerrors = durin |>
     species == "Calluna vulgaris" ~ wet_mass_g/bulk_nr_leaves,
     species == "Empetrum nigrum" ~ wet_mass_g/bulk_nr_leaves,
     TRUE ~ wet_mass_g
-  ))
+  )) |>
+  relocate(wet_mass_g.avg, .after = wet_mass_g)
