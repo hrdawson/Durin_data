@@ -72,4 +72,10 @@ durin.noerrors = durin |>
   # Filter out missing bulk leaves
   filter(!envelope_ID %in% list.nobulk) |>
   # Correct the spelling of Senja
-  mutate(siteID = replace(siteID, siteID == "Senje", "Senja"))
+  mutate(siteID = replace(siteID, siteID == "Senje", "Senja")) |>
+  # Scale for bulk leaves
+  mutate(wet_mass_g.avg = case_when(
+    species == "Calluna vulgaris" ~ wet_mass_g/bulk_nr_leaves,
+    species == "Empetrum nigrum" ~ wet_mass_g/bulk_nr_leaves,
+    TRUE ~ wet_mass_g
+  ))
