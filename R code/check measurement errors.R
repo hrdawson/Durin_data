@@ -57,11 +57,8 @@ write.csv(error.durin.bulk, "output/error.durin.bulk.csv")
 # Make temporary object without erroneous leaves ----
 library(tidylog)
 
-<<<<<<< HEAD
 list.nobulk = as.list(error.durin.bulk$envelope_ID)
 
-=======
->>>>>>> 235b49cd5ab1a4aef86c770f0b43cd4d85f5b208
 durin.noerrors = durin |>
   # Filter out measurement errors
   filter(!envelope_ID %in% c("AUX7373", "BSD3874", "CVP9320", "DDZ3156", "DEN0101",
@@ -71,12 +68,8 @@ durin.noerrors = durin |>
   filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
                              "CMH5663", "DAI1197", "BHR0925", "AUZ1311", "BOW7206",
                              "DBV0943", "CWZ4784", "EDV5508", "EDR6459", "AEG7270",
-<<<<<<< HEAD
                              "EEN3300")) |>
   # Filter out missing bulk leaves
   filter(!envelope_ID %in% list.nobulk) |>
   # Correct the spelling of Senja
   mutate(siteID = replace(siteID, siteID == "Senje", "Senja"))
-=======
-                             "EEN3300"))
->>>>>>> 235b49cd5ab1a4aef86c770f0b43cd4d85f5b208
