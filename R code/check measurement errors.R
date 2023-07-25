@@ -46,5 +46,15 @@ error.durin.height = durin |>
   relocate(plant_height, .after = envelope_ID)
 
 # Make temporary object without erroneous leaves ----
+library(tidylog)
+
 durin.noerrors = durin |>
-  filter(!envelope_ID %in%)
+  # Filter out measurement errors
+  filter(!envelope_ID %in% c("AUX7373", "BSD3874", "CVP9320", "DDZ3156", "DEN0101",
+                             "AFH1727", "ARK3594", "ERV2714", "AYX2273", "BPF4529",
+                             "CSP7326", "DSD6681", "AOQ0411")) |>
+  # Filter out treatment errors
+  filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
+                             "CMH5663", "DAI1197", "BHR0925", "AUZ1311", "BOW7206",
+                             "DBV0943", "CWZ4784", "EDV5508", "EDR6459", "AEG7270",
+                             "EEN3300"))
