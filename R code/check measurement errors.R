@@ -166,6 +166,28 @@ error.durin.height = durin |>
 
 write.csv(error.durin.height, "output/error.durin.height.csv")
 
+# Incorrect plant heights using field sheets ----
+error.durin.height.Wfielddata = durin |>
+  # # Select relevant columns
+  # select(siteID, DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height, leaf_age, leaf_nr) |>
+  # # Remove duplicates
+  # distinct() |>
+  # Rename column
+  rename(plant_height.entered = plant_height) |>
+  # Join in field sheet data
+  left_join(read.csv("raw_data/Plant height from field sheet.csv", na.strings=c("","NA"))) |>
+  # Filter out plants that don't have field sheet data
+  drop_na(plant_height) |>
+  # Filter to leaves with incorrect heights
+  filter(plant_height != plant_height.entered) |>
+  relocate(c(plant_height, plant_height.entered, siteID, DURIN_plot, DroughNet_plotID, species, plant_nr, leaf_age, leaf_nr),
+           .after = envelope_ID) |>
+  arrange(siteID, DURIN_plot, DroughNet_plotID, species, plant_nr, leaf_age, leaf_nr)
+
+write.csv(error.durin.height.Wfielddata, "output/error.durin.height.withFieldData.csv")
+
+
+
 # Make temporary object without erroneous leaves ----
 library(tidylog)
 
