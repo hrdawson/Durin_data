@@ -1,5 +1,17 @@
 library(tidyverse)
 
+# Code to locate a specific specimen ----
+check = function(barcode) {
+  data = durin |>
+    select(envelope_ID, siteID,
+           DURIN_plot, ageClass, DroughNet_plotID,
+           plotNR, habitat,
+           species, plant_nr, leaf_nr, plant_height, wet_mass_g,
+           leaf_thickness_1_mm, leaf_thickness_2_mm, leaf_thickness_3_mm) |>
+    filter(envelope_ID == barcode)
+  data
+}
+
 # DURIN ----
 # Checking that DURIN species are in the correct plots
 spp.durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sogndal Tjøtta Senja Kautokeino_Data only.csv",
