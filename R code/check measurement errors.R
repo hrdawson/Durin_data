@@ -166,8 +166,8 @@ error.durin.height = durin |>
 
 write.csv(error.durin.height, "output/error.durin.height.csv")
 
-# Incorrect plant heights using field sheets ----
-error.durin.height.Wfielddata = durin |>
+## Incorrect plant heights using field sheets ----
+error.durin.height.W.fielddata = durin |>
   # # Select relevant columns
   # select(siteID, DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height, leaf_age, leaf_nr) |>
   # # Remove duplicates
@@ -186,7 +186,25 @@ error.durin.height.Wfielddata = durin |>
 
 write.csv(error.durin.height.Wfielddata, "output/error.durin.height.withFieldData.csv")
 
+## Incorrect heights without field sheet ----
+error.durin.height.WO.fielddata = durin |>
+  # Filter to plants that don't have field sheet data
+  anti_join(read.csv("raw_data/Plant height from field sheet.csv",
+                     na.strings=c("","NA"))) |>
+  # make list of plants with more than one height
+  select(siteID, DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height) |>
+  distinct() |>
+  group_by(siteID, DURIN_plot, DroughNet_plotID, species, plant_nr) |>
+  summarize(n = length(plant_height)) |>
+  filter(n > 1) |>
+  # Join back in large dataset to find envelope IDs
+  left_join(durin) |>
+  relocate(c(plant_height, siteID, DURIN_plot, DroughNet_plotID, species, plant_nr, leaf_age, leaf_nr),
+           .after = envelope_ID) |>
+  arrange(siteID, DURIN_plot, DroughNet_plotID, species, plant_nr, leaf_age, leaf_nr)
 
+# make manual judgement calls about which height needs correcting using Excel (sorry...)
+write.csv(error.durin.height.WO.fielddata, "output/error.durin.height.withoutFieldData.csv")
 
 # Make temporary object without erroneous leaves ----
 library(tidylog)
