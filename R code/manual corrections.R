@@ -116,5 +116,10 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
     envelope_ID =="ARK3594"~0.0282,
     envelope_ID =="AFH1727"~0.0333,
     envelope_ID =="BSD3874"~0.0468,
-    TRUE ~ wet_mass_g)
+    TRUE ~ wet_mass_g),
+    # Correct Tjøtta plot switch
+    DroughNet_plotID = case_when(
+      siteID == "Tjøtta" & DroughNet_plotID == 1.1 ~ 1.2,
+      TRUE ~ DroughNet_plotID
+    )
   )
