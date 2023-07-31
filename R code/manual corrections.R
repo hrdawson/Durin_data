@@ -121,5 +121,11 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
     DroughNet_plotID = case_when(
       siteID == "Tjøtta" & DroughNet_plotID == 1.1 ~ 1.2,
       TRUE ~ DroughNet_plotID
+    ),
+    # Correct ageClass typos
+    ageClass = case_when(
+      envelope_ID == "EDV5508" ~ "Pioneer",
+      envelope_ID == "EDR6459" ~ "Pioneer",
+      TRUE ~ ageClass
     )
   )
