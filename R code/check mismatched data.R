@@ -4,7 +4,7 @@ library(tidyverse)
 check = function(barcode) {
   data = durin |>
     select(envelope_ID, siteID,
-           DURIN_plot, ageClass, DroughNet_plotID,
+           DURIN_plot, ageClass, DroughtTrt, DroughNet_plotID,
            plotNR, habitat,
            species, plant_nr, leaf_nr, plant_height, wet_mass_g,
            leaf_thickness_1_mm, leaf_thickness_2_mm, leaf_thickness_3_mm) |>
