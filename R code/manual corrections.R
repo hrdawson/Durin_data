@@ -98,6 +98,18 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="DGF1762"~17.0,
       envelope_ID =="ANO6821"~17.5,
       envelope_ID =="CHP1113"~41.2,
+      envelope_ID =="AAO4783"~14.0,
+      envelope_ID =="AAT2449"~14.0,
+      envelope_ID =="AFN5166"~14.0,
+      envelope_ID =="APH3193"~49.2,
+      envelope_ID =="AJA7257"~49.2,
+      envelope_ID =="APC6542"~23.3,
+      envelope_ID =="AIO8720"~23.3,
+      envelope_ID =="AGX3707"~8.1,
+      envelope_ID =="ARR7615"~11.6,
+      envelope_ID =="EVI4590"~12.3,
+      envelope_ID =="DAM1823"~14.9,
+
       TRUE ~ plant_height
     ),
     # Correct species
@@ -127,5 +139,26 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID == "EDV5508" ~ "Pioneer",
       envelope_ID == "EDR6459" ~ "Pioneer",
       TRUE ~ ageClass
+    ),
+    # Correct swapped plant numbers and plant heights
+    plant_nr = as.numeric(plant_nr),
+    plant_nr = case_when(
+      DURIN_plot == "KA_F_EN_3" & plant_nr == 1 ~ 3,
+      DURIN_plot == "KA_F_EN_3" & plant_nr == 3 ~ 1,
+      TRUE ~ plant_nr
+    ),
+    plant_height = case_when(
+      DURIN_plot == "KA_F_EN_3" & plant_nr == 1 ~ 17.2,
+      DURIN_plot == "KA_F_EN_3" & plant_nr == 3 ~ 19.0,
+      DURIN_plot == "LY_F_EN_2" & plant_nr == 3 ~ 26.8,
+      DURIN_plot == "LY_F_EN_5" & plant_nr == 1 ~ 28.0,
+      DURIN_plot == "LY_O_EN_1" & plant_nr == 1 ~ 10.2,
+      DURIN_plot == "LY_O_EN_3" & plant_nr == 3 ~ 14.2,
+      DURIN_plot == "LY_O_EN_4" & plant_nr == 2 ~ 16.4,
+      DURIN_plot == "SE_O_VM_3" & plant_nr == 2 ~ 15.5,
+      DURIN_plot == "SE_O_VM_3" & plant_nr == 3 ~ 17.2,
+      DURIN_plot == "SE_O_VV_3" & plant_nr == 3 ~ 18.4,
+
+      TRUE ~ plant_height
     )
   )
