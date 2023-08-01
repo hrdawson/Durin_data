@@ -105,7 +105,49 @@ error.durin.plots = durin |>
   # Filter to the errors
   filter(n > max.plant.n)
 
+# Function to list all of a given plot + species
+check.plant = function(plot) {
+  data = durin |>
+    select(envelope_ID, siteID,
+           DURIN_plot,
+           plotNR, habitat,
+           species, plant_nr, leaf_nr, leaf_age, plant_height) |>
+    filter(DURIN_plot == plot) |>
+    arrange(plant_nr, leaf_age, leaf_nr)
+  data
+}
+
+error.DN.plots = durin |>
+  # Remove Phys Team plants
+  filter(leaf_nr > 0) |>
+  # Bring to just the level of unique plants
+  select(siteID, ageClass, DroughNet_plotID, species, plant_nr, plant_height) |>
+  drop_na(DroughNet_plotID) |>
+  distinct() |>
+  # Summarize
+  group_by(siteID, ageClass, DroughNet_plotID, species) |>
+  summarize(n = length(plant_height)) |>
+  ungroup() |>
+  # Add in max plant nr data
+  left_join(durin.max.plant_nr) |>
+  # Filter to the errors
+  filter(n > max.plant.n)
+
+# Function to list all of a given plot + species
+check.plant = function(site, age, plot, spp) {
+  data = durin |>
+    select(envelope_ID, siteID,
+           ageClass, DroughNet_plotID,
+           species, plant_nr, leaf_nr, leaf_age, plant_height) |>
+    filter(siteID == site & ageClass == age & DroughNet_plotID == plot & species == spp) |>
+    arrange(plant_nr, leaf_age, leaf_nr) |>
+    drop_na(plant_height)
+  data
+}
+
 # Check number of leaves per age group ----
+## Again, this isn't working due to the case_when
+# Does case_when not do maths?
 error.durin.plots = durin |>
   # Bring to just the level of unique plants
   select(siteID, DURIN_plot, species, plant_nr, plant_height, leaf_nr, leaf_age) |>
@@ -137,3 +179,12 @@ check.plant = function(plot) {
     arrange(plant_nr, leaf_age, leaf_nr)
   data
 }
+
+# Figure out which plant heights are assigned NA ----
+error.height.na = durin |>
+  filter(is.na(plant_height)) |>
+  filter(project == "Field - Traits") |>
+  select(envelope_ID) |>
+  left_join(read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sogndal Tjøtta Senja Kautokeino_Data only.csv",
+                     na.strings=c("","NA"))) |>
+  relocate(plant_height, .after = envelope_ID)
