@@ -74,9 +74,9 @@ durin.max.plant_nr = durin |>
   rename(max.plant.n = plant_nr)
 
 error.durin.plants = durin |>
-  # Filter out known issues (wrong species)
-  filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
-                             "CMH5663", "DAI1197")) |>
+  # # Filter out known issues (wrong species)
+  # filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
+  #                            "CMH5663", "DAI1197")) |>
   # Select relevant columns
   select(DURIN_plot, DroughNet_plotID, species, plant_nr) |>
   distinct() |>
@@ -95,8 +95,8 @@ error.durin.age.missing = durin |>
   # Filter to species with young and old leaves
   filter(species %in% c("Vaccinium vitis-idaea", "Empetrum nigrum")) |>
   # Filter out known issues (wrong species)
-  filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
-                             "CMH5663", "DAI1197")) |>
+  # filter(!envelope_ID %in% c("AYN9607", "AST3380", "BBM8747", "BLM2549", "CMX4054",
+  #                            "CMH5663", "DAI1197")) |>
   # Filter to NA values
   filter(is.na(leaf_age))
 
@@ -137,34 +137,34 @@ error.durin.age = durin |>
 # 2023.07.25 Something is going wrong with this
 # There are two ways to get wrong height: wrong treatment/plant nr OR incorrectly entered height
 # The solution may be to enter all the field sheets and check against those...
-error.durin.height = durin |>
-  # Select relevant columns
-  select(DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height) |>
-  # Remove duplicates
-  distinct() |>
-  # Summarize to find single plants with multiple measurements
-  group_by(DURIN_plot, DroughNet_plotID, species, plant_nr) |>
-  summarise(n = length(plant_height)) |>
-  # Filter to erroneous ones
-  filter(n > 1) |>
-  # Drop variable with count
-  select(-n) |>
-  # Inner join with main dataset
-  inner_join(durin) |>
-  select(envelope_ID, DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height) |>
-  # Make dataset of heights
-  group_by(DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height) |>
-  summarize(n = length(envelope_ID)) |>
-  ungroup() |>
-  # Remove heights that are likely to be correct
-  filter(!n %in% c(3, 6))
-  # Select the least probable height
-  group_by(DURIN_plot, DroughNet_plotID, species, plant_nr) |>
-  slice_min(n) |>
-  # Inner join for list of envelope IDs
-  inner_join(durin)
-
-write.csv(error.durin.height, "output/error.durin.height.csv")
+# error.durin.height = durin |>
+#   # Select relevant columns
+#   select(DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height) |>
+#   # Remove duplicates
+#   distinct() |>
+#   # Summarize to find single plants with multiple measurements
+#   group_by(DURIN_plot, DroughNet_plotID, species, plant_nr) |>
+#   summarise(n = length(plant_height)) |>
+#   # Filter to erroneous ones
+#   filter(n > 1) |>
+#   # Drop variable with count
+#   select(-n) |>
+#   # Inner join with main dataset
+#   inner_join(durin) |>
+#   select(envelope_ID, DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height) |>
+#   # Make dataset of heights
+#   group_by(DURIN_plot, DroughNet_plotID, species, plant_nr, plant_height) |>
+#   summarize(n = length(envelope_ID)) |>
+#   ungroup() |>
+#   # Remove heights that are likely to be correct
+#   filter(!n %in% c(3, 6))
+#   # Select the least probable height
+#   group_by(DURIN_plot, DroughNet_plotID, species, plant_nr) |>
+#   slice_min(n) |>
+#   # Inner join for list of envelope IDs
+#   inner_join(durin)
+#
+# write.csv(error.durin.height, "output/error.durin.height.csv")
 
 ## Incorrect plant heights using field sheets ----
 error.durin.height.W.fielddata = durin |>
@@ -176,6 +176,8 @@ error.durin.height.W.fielddata = durin |>
   rename(plant_height.entered = plant_height) |>
   # Join in field sheet data
   left_join(read.csv("raw_data/Plant height from field sheet.csv", na.strings=c("","NA"))) |>
+  mutate(plant_height.entered = as.numeric(plant_height.entered),
+         plant_height = as.numeric(plant_height)) |>
   # Filter out plants that don't have field sheet data
   drop_na(plant_height) |>
   # Filter to leaves with incorrect heights

@@ -30,7 +30,7 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="AYP7221"~ "LY_O_VV_2",
       envelope_ID =="AZB3929"~ "LY_O_VV_2",
       envelope_ID =="BFY4922"~ "LY_O_VV_2",
-      envelope_ID =="AYS6617"~ "LY_O_VV_3",
+      envelope_ID =="AYS6617"~ "LY_O_VM_3",
       envelope_ID =="AZJ4306"~ "LY_O_VV_5",
       envelope_ID =="EVA9626"~ "SE_F_VV_4",
       envelope_ID =="CWZ4784"~ "SE_O_VM_5",
@@ -40,7 +40,23 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="CZD0880"~ "SE_O_VV_4",
       envelope_ID =="CMH5663"~ "SO_F_VM_3",
       envelope_ID =="CMX4054"~ "SO_F_VM_4",
+      # From cross-checking number of plants per plot
       envelope_ID =="CKI5874"~ "SO_F_VV_1",
+      envelope_ID =="BZJ1412"~ "KA_F_VV_1",
+      envelope_ID =="BZN2057"~ "KA_F_VV_1",
+      envelope_ID =="DBF6720"~ "KA_F_VV_1",
+      envelope_ID =="BZA7321"~ "KA_O_VV_1",
+      envelope_ID =="CCH4321"~ "KA_F_EN_1",
+      envelope_ID =="BYB4115"~ "KA_F_VV_5",
+      envelope_ID =="AYS6617"~ "LY_O_VM_3",
+      envelope_ID =="EUK3873"~ "SE_F_VV_3",
+      envelope_ID =="EGE6339"~ "SE_F_VV_3",
+      envelope_ID =="CYM4429"~ "SE_F_VV_3",
+      envelope_ID =="ETB0915"~ "SE_O_VM_1",
+      envelope_ID =="EVI4590"~ "SE_F_VV_4",
+      envelope_ID =="DAM1823"~ "SE_F_VV_4",
+      envelope_ID =="BWU3342"~ "SE_F_VV_4",
+      envelope_ID =="EUJ5068"~ "SE_F_VV_4",
       TRUE ~ DURIN_plot
     ),
     # Correct habitats
@@ -76,6 +92,8 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="AZG5994"~"old",
       envelope_ID =="EVO1776"~"young",
       envelope_ID =="EVS4445"~"young",
+      envelope_ID =="ASS9832"~"old",
+      envelope_ID =="BBM8747"~"old",
       TRUE ~ leaf_age
     ),
     # Correct thicknesses
@@ -107,8 +125,6 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="AIO8720"~23.3,
       envelope_ID =="AGX3707"~8.1,
       envelope_ID =="ARR7615"~11.6,
-      envelope_ID =="EVI4590"~12.3,
-      envelope_ID =="DAM1823"~14.9,
 
       TRUE ~ plant_height
     ),
@@ -145,6 +161,9 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
     plant_nr = case_when(
       DURIN_plot == "KA_F_EN_3" & plant_nr == 1 ~ 3,
       DURIN_plot == "KA_F_EN_3" & plant_nr == 3 ~ 1,
+      envelope_ID == "CQU5714" ~ 1,
+      envelope_ID == "BBM8747" ~ 3,
+      envelope_ID == "CWT0272" ~ 1,
       TRUE ~ plant_nr
     ),
     plant_height = case_when(
@@ -158,6 +177,7 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       DURIN_plot == "SE_O_VM_3" & plant_nr == 2 ~ 15.5,
       DURIN_plot == "SE_O_VM_3" & plant_nr == 3 ~ 17.2,
       DURIN_plot == "SE_O_VV_3" & plant_nr == 3 ~ 18.4,
+      envelope_ID == "ESC1744" ~ 18.5,
 
       TRUE ~ plant_height
     )

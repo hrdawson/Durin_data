@@ -107,7 +107,8 @@ ggsave("visualizations/2023.07.25_DroughtNet_height.png",
 ggplot(durin.viz %>% filter(leaf_age != "" & habitat != "") |>
          mutate(siteID = factor(siteID,
                                 levels = c("Lygra", "Sogndal", "Senja", "Kautokeino"),
-                                labels = c("LY", "SO", "SE", "KA"))),
+                                labels = c("LY", "SO", "SE", "KA"))) |>
+         filter(trait != "plant_height"),
        aes(interaction(siteID, species), y = value, fill = leaf_age)) +
   geom_boxplot() +
   scale_fill_manual(values = c("grey40", "grey80")) +
@@ -116,3 +117,23 @@ ggplot(durin.viz %>% filter(leaf_age != "" & habitat != "") |>
   scale_x_discrete(guide = "axis_nested") +
   # labs(x = "", title = "DURIN leaf thickness and leaf mass") +
   theme_bw()
+
+ggsave("visualizations/2023.07.28_DURIN_species_thickness.mass.png",
+       width = 12, height = 8, units = "in")
+
+# Plant height
+ggplot(durin.viz %>% filter(leaf_age != "" & habitat != "") |>
+         mutate(siteID = factor(siteID,
+                                levels = c("Lygra", "Sogndal", "Senja", "Kautokeino"),
+                                labels = c("LY", "SO", "SE", "KA")))
+       |> filter(trait == "plant_height"),
+       aes(interaction(siteID, species), y = value)) +
+  geom_boxplot() +
+  facet_wrap(~ trait, scales = "free") +
+  scale_y_log10() +
+  scale_x_discrete(guide = "axis_nested") +
+  labs(x = "", title = "DURIN plant height") +
+  theme_bw()
+
+ggsave("visualizations/2023.07.25_DURIN_species_height.png",
+       width = 6, height = 8, units = "in")
