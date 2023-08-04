@@ -96,6 +96,11 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="BBM8747"~"old",
       TRUE ~ leaf_age
     ),
+    DroughNet_plotID = case_when(
+      envelope_ID == "EFN3557" ~ 2.3,
+      envelope_ID == "EFR2422" ~ 2.3,
+      TRUE ~ DroughNet_plotID
+    ),
     # Correct thicknesses
     leaf_thickness_1_mm = case_when(
       envelope_ID =="DSD6681"~0.0107,
