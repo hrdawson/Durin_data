@@ -1,5 +1,11 @@
+# List of plots resampled
+resampled = c("LY_O_EN_1", "LY_O_VM_1", "LY_O_VM_5", "Lygra1.1VM",
+              "Lygra2.2EN", "Lygra1.1EN", "LY_F_VV_2",
+              "LY_O_VV_1", "LY_O_VV_2", "LY_O_VV_4", "LY_O_VV_5",
+              "Lygra1.2VV", "LY_O_EN_4", "Lygra7.3EN")
+
 # Manually clean errors ----
-durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sogndal Tjøtta Senja Kautokeino_Data only.csv",
+durin.added = read.csv("raw_data/2023.08.04_DURIN Plant Functional Traits_Lygra Sogndal Tjøtta Senja Kautokeino_Data only.csv",
                  na.strings=c("","NA")) |>
   # Change plant height to numeric
   mutate(plant_height = as.numeric(plant_height)) |>
@@ -144,12 +150,12 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
     ),
     # Correct wet mass
     wet_mass_g = case_when(
-    envelope_ID =="DDZ3156"~0.0138,
-    envelope_ID =="DEN0101"~0.0254,
-    envelope_ID =="ARK3594"~0.0282,
-    envelope_ID =="AFH1727"~0.0333,
-    envelope_ID =="BSD3874"~0.0468,
-    TRUE ~ wet_mass_g),
+      envelope_ID =="DDZ3156"~0.0138,
+      envelope_ID =="DEN0101"~0.0254,
+      envelope_ID =="ARK3594"~0.0282,
+      envelope_ID =="AFH1727"~0.0333,
+      envelope_ID =="BSD3874"~0.0468,
+      TRUE ~ wet_mass_g),
     # Correct Tjøtta plot switch
     DroughNet_plotID = case_when(
       siteID == "Tjøtta" & DroughNet_plotID == 1.1 ~ 1.2,
@@ -186,4 +192,91 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
 
       TRUE ~ plant_height
     )
-  )
+  ) |>
+  # Unique identifier that works for DURIN or DroughtNet
+  mutate(spp.abbrv = case_when(
+    species == "Vaccinium myrtillus" ~ "VM",
+    species == "Vaccinium vitis-idaea" ~ "VV",
+    species == "Empetrum nigrum" ~ "EN",
+    species == "Calluna vulgaris" ~ "CV",
+    TRUE ~ "Unknown"
+  ),
+    uniqueID = case_when(
+    !is.na(DURIN_plot) ~ DURIN_plot,
+    !is.na(DroughNet_plotID) ~ paste0(siteID, DroughNet_plotID, spp.abbrv),
+    TRUE ~ "Unknown"
+  )) |>
+  # Filter to plots with resampling
+  filter(uniqueID %in% resampled) |>
+  # Separate between old and new sampling
+  mutate(sampletime = case_when(
+    day == 27 ~ "Sample 2",
+    TRUE ~ "Sample 1"
+  )) |>
+  # Only the relevant columns
+  select(envelope_ID, uniqueID, plant_nr, leaf_nr, leaf_age, sampletime,
+         plant_height, wet_mass_g, leaf_thickness_1_mm, leaf_thickness_2_mm, leaf_thickness_3_mm,
+         day, month) |>
+  # Drop NA leaf age
+  drop_na(leaf_age) |>
+  # Tidy in long form
+  pivot_longer(cols = plant_height:leaf_thickness_3_mm, names_to = "trait", values_to = "value") %>%
+  # Standardize traits
+  mutate(trait = replace(trait,
+                         trait == "leaf_thickness_1_mm" | trait == "leaf_thickness_2_mm" | trait == "leaf_thickness_3_mm",
+                         "leaf_thickness")) |>
+  # Factor plots
+  mutate(uniqueID = factor(uniqueID, levels = c("LY_O_VM_1", "LY_O_VM_5", "Lygra1.1VM",
+                                                "LY_F_VV_2", "LY_O_VV_1", "LY_O_VV_2",
+                                                "LY_O_VV_4", "LY_O_VV_5", "Lygra1.2VV",
+                                                "LY_O_EN_1","LY_O_EN_4","Lygra1.1EN",
+                                                "Lygra2.2EN", "Lygra7.3EN")))
+
+# Visualize the differences ----
+library(ggh4x)
+
+## Leaf thickness ----
+ggplot(durin.added |> filter(trait == "leaf_thickness"),
+       aes(x = interaction(sampletime, leaf_age), y = value, fill = leaf_age)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5) +
+  geom_point(aes(color = leaf_age), position = position_jitterdodge()) +
+  scale_fill_manual(values = c("grey40", "grey80")) +
+  scale_color_manual(values = c("grey40", "grey80")) +
+  facet_wrap(~uniqueID, scales = "free", ncol = 3) +
+  # scale_y_log10() +
+  scale_x_discrete(guide = "axis_nested") +
+  labs(x = "", title = "Leaf thickness (mm)", y = "Leaf thickness (mm)") +
+  theme_bw()
+
+ggsave("visualizations/2023.08.04_resampling_leafthickness.png",
+       width = 12, height = 10, units = "in")
+
+## Wet mass ----
+ggplot(durin.added |> filter(trait == "wet_mass_g"),
+       aes(x = interaction(sampletime, leaf_age), y = value, fill = leaf_age)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5) +
+  geom_point(aes(color = leaf_age), position = position_jitterdodge()) +
+  scale_fill_manual(values = c("grey40", "grey80")) +
+  scale_color_manual(values = c("grey40", "grey80")) +
+  facet_wrap(~uniqueID, scales = "free", ncol = 3) +
+  # scale_y_log10() +
+  scale_x_discrete(guide = "axis_nested") +
+  labs(x = "", title = "Wet mass (g)", y = "Wet mass (g)") +
+  theme_bw()
+
+ggsave("visualizations/2023.08.04_resampling_wetmass.png",
+       width = 12, height = 10, units = "in")
+
+## Plant height ----
+ggplot(durin.added |> filter(trait == "plant_height"),
+       aes(x = sampletime, y = value)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5) +
+  geom_jitter() +
+  facet_wrap(~uniqueID, scales = "free", ncol = 3) +
+  # scale_y_log10() +
+  scale_x_discrete(guide = "axis_nested") +
+  labs(x = "", title = "Plant height (cm)") +
+  theme_bw()
+
+ggsave("visualizations/2023.08.04_resampling_plantheight.png",
+       width = 12, height = 10, units = "in")
