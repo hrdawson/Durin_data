@@ -227,8 +227,8 @@ durin.added = read.csv("raw_data/2023.08.04_DURIN Plant Functional Traits_Lygra 
                          "leaf_thickness")) |>
   # Factor plots
   mutate(uniqueID = factor(uniqueID, levels = c("LY_O_VM_1", "LY_O_VM_5", "Lygra1.1VM",
-                                                "LY_F_VV_2", "LY_O_VV_1", "LY_O_VV_2",
-                                                "LY_O_VV_4", "LY_O_VV_5", "Lygra1.2VV",
+                                                "LY_O_VV_1", "LY_O_VV_2", "LY_O_VV_4",
+                                                "LY_O_VV_5", "Lygra1.2VV", "LY_F_VV_2",
                                                 "LY_O_EN_1","LY_O_EN_4","Lygra1.1EN",
                                                 "Lygra2.2EN", "Lygra7.3EN")))
 
