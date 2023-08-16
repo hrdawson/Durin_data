@@ -187,3 +187,5 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       TRUE ~ plant_height
     )
   )
+
+write.csv(durin, "output/2023.08.16_cleanDURIN.csv")
