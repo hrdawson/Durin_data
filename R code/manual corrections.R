@@ -57,6 +57,9 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="DAM1823"~ "SE_F_VV_4",
       envelope_ID =="BWU3342"~ "SE_F_VV_4",
       envelope_ID =="EUJ5068"~ "SE_F_VV_4",
+      # Round two corrections
+      envelope_ID == "EUJ5068" ~ "SE_O_VV_4",
+      envelope_ID == "EUS4572" ~ "SE_F_VV_3",
       TRUE ~ DURIN_plot
     ),
     # Correct habitats
@@ -77,6 +80,9 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="CYR2242"~"Open",
       envelope_ID =="CZD0880"~"Open",
       envelope_ID =="BOW7206"~"Forested",
+      # From round 2 corrections
+      envelope_ID == "CLA4537" ~ "Open",
+      envelope_ID == "CLE7064" ~ "Open",
       TRUE ~ habitat
     ),
     # Correct plot numbers
@@ -105,10 +111,14 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
     leaf_thickness_1_mm = case_when(
       envelope_ID =="DSD6681"~0.0107,
       envelope_ID =="CSP7326"~0.259,
+      # From round 2 corrections
+      envelope_ID == "ASM6249" ~ 0.114,
       TRUE ~ leaf_thickness_1_mm
     ),
     leaf_thickness_2_mm = case_when(
       envelope_ID =="BPF4529"~0.221,
+      # From round 2 corrections
+      envelope_ID == "ASM6249" ~ 0.114,
       TRUE ~ leaf_thickness_2_mm
     ),
     # Correct plant heights
@@ -140,6 +150,7 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="BBM8747"~"Vaccinium vitis-idaea",
       envelope_ID =="DAI1197"~"Vaccinium vitis-idaea",
       envelope_ID =="DZX9994"~"Vaccinium vitis-idaea",
+      envelope_ID =="BLM2549"~"Vaccinium vitis-idaea",
       TRUE ~ species
     ),
     # Correct wet mass
@@ -169,6 +180,8 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID == "CQU5714" ~ 1,
       envelope_ID == "BBM8747" ~ 3,
       envelope_ID == "CWT0272" ~ 1,
+      DURIN_plot == "SO_O_VV_5" & plant_height == 13.5 ~ 2,
+      DURIN_plot == "SO_O_VV_5" & plant_height == 10.4 ~ 3,
       TRUE ~ plant_nr
     ),
     plant_height = case_when(
@@ -183,9 +196,8 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       DURIN_plot == "SE_O_VM_3" & plant_nr == 3 ~ 17.2,
       DURIN_plot == "SE_O_VV_3" & plant_nr == 3 ~ 18.4,
       envelope_ID == "ESC1744" ~ 18.5,
-
       TRUE ~ plant_height
     )
   )
 
-write.csv(durin, "output/2023.08.16_cleanDURIN.csv")
+# write.csv(durin, "output/2023.08.16_cleanDURIN.csv")
