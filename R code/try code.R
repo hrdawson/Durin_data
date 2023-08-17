@@ -1,21 +1,43 @@
 # Read in TRY data ----
 trydata = read.csv("raw_data/TRY/28371.csv") |>
-  filter(TraitID %in% c(1, 3110, 3112, 3114, 11, 3116, 3117, 3106)) |>
+  bind_rows(read.csv("raw_data/TRY/28390.csv")) |>
+  filter(TraitID %in% c(1, 3110, 3112, 3114, 11, 3116, 3117, 3106, 46)) |>
   # Assign same trait names as DURIN
   mutate(trait = case_when(
     TraitID %in% c(1, 3110, 3112, 3114) ~ "leaf_area",
     TraitID %in% c(11, 3116, 3117) ~ "SLA",
     TraitID == 3106 ~ "plant_height",
+    TraitID == 46 ~ "leaf_thickness",
     TRUE ~ "Unknown"
-  ))
+  )) |>
+  # Specify dataset
+  mutate(dataset = "TRY") |>
+  # Select relevant columns
+  select(ObservationID, SpeciesName, trait, StdValue, dataset) |>
+  # Standardize column names
+  rename(Envelope_ID = ObservationID, species = SpeciesName, value = StdValue)
 
 table(trydata$TraitName)
 table(trydata$DataName)
 
 # Read in DURIN data ----
 durin.subset.try = read.csv("output/2023.08.16_cleanDURIN.csv") %>%
+  # Filter to relevant data
   filter(species %in% c("Vaccinium vitis-idaea", "Empetrum nigrum")) |>
   filter(siteID == "Lygra") |>
   filter(project == "Field - Traits") |>
-  filter(DroughtTrt %in% c(NA, "Amb (0)"))
+  filter(DroughtTrt %in% c(NA, "Amb (0)")) |>
+  # Add DURIN field
+  mutate(dataset = "DURIN") |>
+  # Select columns for quick comparison
+  select(envelope_ID, species, leaf_age:leaf_thickness_3_mm) |>
+  # Tidy in long form
+  pivot_longer(cols = plant_height:leaf_thickness_3_mm, names_to = "trait", values_to = "value") |>
+  # Standardize traits
+  mutate(trait = replace(trait,
+                         trait == "leaf_thickness_1_mm" | trait == "leaf_thickness_2_mm" | trait == "leaf_thickness_3_mm",
+                         "leaf_thickness"))
 
+# Make single dataset ----
+durin.try = durin.subset.try |>
+  bind_rows(trydata)
