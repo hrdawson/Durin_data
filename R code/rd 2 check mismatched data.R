@@ -5,7 +5,7 @@ check = function(barcode) {
   data = durin |>
     select(envelope_ID, siteID,
            DURIN_plot, ageClass, DroughtTrt, DroughNet_plotID,
-           plotNR, habitat,
+           plotNR, habitat, leaf_age,
            species, plant_nr, leaf_nr, plant_height, wet_mass_g,
            leaf_thickness_1_mm, leaf_thickness_2_mm, leaf_thickness_3_mm) |>
     filter(envelope_ID == barcode)
@@ -169,7 +169,7 @@ error.durin.plots = durin |>
   filter(n > max.leaves)
 
 # Function to list all of a given plot + species
-check.plant = function(plot) {
+check.species = function(plot) {
   data = durin |>
     select(envelope_ID, siteID,
            DURIN_plot,
@@ -188,3 +188,28 @@ error.height.na = durin |>
   left_join(read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sogndal Tjøtta Senja Kautokeino_Data only.csv",
                      na.strings=c("","NA"))) |>
   relocate(plant_height, .after = envelope_ID)
+
+# Check number of leaves per plant ----
+# Function to list all of a given plant
+check.plant = function(plot, plantnr) {
+  data = durin |>
+    select(envelope_ID, siteID,
+           DURIN_plot,
+           plotNR, habitat,
+           species, plant_nr, leaf_nr, leaf_age, plant_height) |>
+    filter(DURIN_plot == plot & plant_nr == plantnr) |>
+    arrange(plant_nr, leaf_age, leaf_nr)
+  data
+}
+
+## DURIN only ----
+error.durin.leaves = durin %>%
+  # Select just the relevant data
+  drop_na(DURIN_plot) |>
+  dplyr::group_by(siteID, DURIN_plot, plant_nr, leaf_age, leaf_nr) %>%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+  dplyr::filter(n > 1L)
+
+# Run check.plant() for each one listed in the resulting object to find barcodes with errors
+
+### Manually inspect all with lists
