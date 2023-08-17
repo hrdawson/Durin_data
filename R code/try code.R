@@ -10,12 +10,23 @@ trydata = read.csv("raw_data/TRY/28371.csv") |>
     TraitID == 46 ~ "leaf_thickness",
     TRUE ~ "Unknown"
   )) |>
+  # Standardize species names
+  mutate(species = case_when(
+    AccSpeciesID == 20484 ~ "Empetrum nigrum",
+    AccSpeciesID == 55754 ~ "Vaccinium vitis-idaea"
+  )) |>
+  # Convert plant height to centimeters
+  mutate(StdValue = case_when(
+    trait == "plant_height" ~ StdValue * 100,
+    TRUE ~ StdValue
+  )) |>
   # Specify dataset
-  mutate(dataset = "TRY") |>
+  mutate(dataset = "TRY",
+         leaf_age = "database") |>
   # Select relevant columns
-  select(ObservationID, SpeciesName, trait, StdValue, dataset) |>
+  select(ObservationID, species, trait, StdValue, dataset, leaf_age) |>
   # Standardize column names
-  rename(Envelope_ID = ObservationID, species = SpeciesName, value = StdValue)
+  rename(Envelope_ID = ObservationID, value = StdValue)
 
 table(trydata$TraitName)
 table(trydata$DataName)
@@ -30,7 +41,7 @@ durin.subset.try = read.csv("output/2023.08.16_cleanDURIN.csv") %>%
   # Add DURIN field
   mutate(dataset = "DURIN") |>
   # Select columns for quick comparison
-  select(envelope_ID, species, leaf_age:leaf_thickness_3_mm) |>
+  select(envelope_ID, species, dataset, leaf_age:leaf_thickness_3_mm) |>
   # Tidy in long form
   pivot_longer(cols = plant_height:leaf_thickness_3_mm, names_to = "trait", values_to = "value") |>
   # Standardize traits
@@ -41,3 +52,31 @@ durin.subset.try = read.csv("output/2023.08.16_cleanDURIN.csv") %>%
 # Make single dataset ----
 durin.try = durin.subset.try |>
   bind_rows(trydata)
+
+## Troubleshoot ----
+durin.try.nas = durin.try |>
+  filter(is.na(leaf_age))
+
+# Visualize ----
+library(ggh4x)
+
+# Leaf thickness
+ggplot(durin.try |> filter(trait == "leaf_thickness") |> drop_na(leaf_age),
+       aes(interaction(leaf_age, species), y = value)) +
+  geom_boxplot() +
+  scale_x_discrete(guide = "axis_nested") +
+  labs(title = "Leaf thickness") +
+  theme_bw()
+
+ggsave("visualizations/durin.try_leafthickness.png")
+
+# Plant height
+ggplot(durin.try |> filter(trait == "plant_height"),
+       aes(x = dataset, y = value)) +
+  geom_boxplot() +
+  scale_x_discrete(guide = "axis_nested") +
+  facet_grid(~species, scales = "free_y") +
+  labs(title = "Plant height") +
+  theme_bw()
+
+ggsave("visualizations/durin.try_plantheight.png")
