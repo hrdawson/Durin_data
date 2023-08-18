@@ -100,6 +100,7 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="EVS4445"~"young",
       envelope_ID =="ASS9832"~"old",
       envelope_ID =="BBM8747"~"old",
+      DroughNet_plotID == 7.3 & species == "Vaccinium myrtillus" ~ "young",
       TRUE ~ leaf_age
     ),
     DroughNet_plotID = case_when(
@@ -183,6 +184,7 @@ durin = read.csv("raw_data/2023.07.20_DURIN Plant Functional Traits_Lygra Sognda
       envelope_ID =="AAT2449"~3,
       envelope_ID =="AFN5166"~3,
       envelope_ID =="EFN3557"~3,
+      DroughNet_plotID == 7.3 & plant_height == 17.6 ~ 2,
       TRUE ~ plant_nr
     ),
     plant_height = case_when(
