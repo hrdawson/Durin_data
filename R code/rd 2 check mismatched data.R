@@ -190,7 +190,7 @@ error.height.na = durin |>
   relocate(plant_height, .after = envelope_ID)
 
 # Check number of leaves per plant ----
-# Function to list all of a given plant
+# Function to list all of a given plant (DURIN)
 check.plant = function(plot, plantnr) {
   data = durin |>
     select(envelope_ID, siteID,
@@ -202,13 +202,36 @@ check.plant = function(plot, plantnr) {
   data
 }
 
+
+# Function to list all of a given plant (DroughtNet)
+check.plant = function(site, plot, speciesID, plantnr) {
+  data = durin |>
+    select(envelope_ID, siteID,
+           DroughNet_plotID, ageClass,
+           species, plant_nr, leaf_nr, leaf_age, plant_height) |>
+    filter(siteID == site & DroughNet_plotID == plot & species == speciesID & plant_nr == plantnr) |>
+    arrange(ageClass, plant_nr, leaf_age, leaf_nr)
+  data
+}
 ## DURIN only ----
 error.durin.leaves = durin %>%
   # Select just the relevant data
   drop_na(DURIN_plot) |>
+  filter(project == "Field - Traits") |>
   dplyr::group_by(siteID, DURIN_plot, plant_nr, leaf_age, leaf_nr) %>%
   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
   dplyr::filter(n > 1L)
+
+## DroughtNet only ----
+error.DN.leaves = durin %>%
+  # Select just the relevant data
+  drop_na(DroughNet_plotID) |>
+  filter(project == "Field - Traits") |>
+  dplyr::group_by(project, siteID, ageClass, DroughNet_plotID, species,
+                  plant_nr, leaf_age, leaf_nr) %>%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+  dplyr::filter(n > 1L)
+
 
 # Run check.plant() for each one listed in the resulting object to find barcodes with errors
 
